@@ -1,7 +1,9 @@
+using FluentValidation;
+using TaskService.Api.Middlewares;
 using TaskService.Application.Tasks.Commands.CompleteTask;
+using TaskService.Application.Tasks.Commands.CreateTask;
 using TaskService.Application.Tasks.Interfaces;
 using TaskService.Application.Tasks.Queries.GetTasks;
-using TaskService.Application.Tasks.Commands.CreateTask;
 using TaskService.Infrastructure.Repositories;
 using TaskService.Infrastructure.Settings;
 
@@ -21,13 +23,23 @@ builder.Services.AddScoped<GetTasksHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskValidator>();
+
+
 var app = builder.Build();
+
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/tasks", async (CreateTaskCommand cmd, CreateTaskHandler handler)
-    => Results.Ok(await handler.HandleAsync(cmd)));
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.MapPost("/tasksCreate",
+    async (CreateTaskCommand cmd, CreateTaskHandler handler) =>
+        Results.Ok(await handler.HandleAsync(cmd)))
+   .AddEndpointFilter<ValidationFilter<CreateTaskCommand>>();
+
 
 app.MapPut("/tasks/complete", async (CompleteTaskCommand cmd, CompleteTaskHandler handler)
     => (await handler.HandleAsync(cmd)) ? Results.Ok() : Results.NotFound());
