@@ -27,3 +27,6 @@ jobs:
 
     - name: Ejecutar tests
       run: dotnet test --no-build --verbosity normal
+
+    - name: Build Docker image
+      run: docker build -t taskservice-api -f TaskService.Api/Dockerfile .
