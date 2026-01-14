@@ -14,6 +14,6 @@ namespace TaskService.Application.Tasks.Queries.GetTasks
         public GetTasksHandler(ITaskRepository repo) => _repo = repo;
 
         public async Task<List<TaskItem>> HandleAsync(GetTasksQuery _)
-            => await _repo.GetAllAsync();
+            => await _repo.GetAllAsyn();
     }
 }
